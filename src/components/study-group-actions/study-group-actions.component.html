@@ -1,0 +1,49 @@
+<tui-island *tuiLet="actions$ | async as actions">
+  <p class="tui-island__category">actions</p>
+
+  <label tuiLabel="Move all student from one group to another" [formGroup]="moveStudentsForm">
+    <div
+      tuiGroup
+      class="group"
+    >
+      <tui-input formControlName="from">
+        From
+        <input tuiTextfield />
+      </tui-input>
+
+      <tui-input formControlName="to">
+        To
+        <input tuiTextfield />
+      </tui-input>
+
+      <button
+        appearance="accent"
+        tuiButton
+        type="button"
+        [showLoader]="actions?.move?.isLoading ?? false"
+        (click)="onMoveButtonClick()"
+      >
+        Move
+      </button>
+    </div>
+  </label>
+
+  <label tuiLabel="Count the number of expelled students" class="count-block">
+    <div
+      tuiGroup
+      class="group"
+    >
+      <button
+        appearance="primary"
+        tuiButton
+        type="button"
+        [showLoader]="actions?.count?.isLoading ?? false"
+        (click)="onCountButtonClick()"
+      >
+        Count
+      </button>
+
+      <tui-primitive-textfield [disabled]="true">{{actions?.count?.value ?? ''}}</tui-primitive-textfield>
+    </div>
+  </label>
+</tui-island>

@@ -1,0 +1,42 @@
+<form [formGroup]="sortForm">
+  <div
+    tuiGroup
+    class="group"
+  >
+    <tui-select formControlName="criteria" tuiTextfieldSize="m">
+      Sort by
+      <input
+        placeholder="Select value"
+        tuiTextfield
+      />
+      <tui-data-list-wrapper
+        *tuiDataList
+        [items]="sortItems"
+      ></tui-data-list-wrapper>
+    </tui-select>
+
+    <tui-radio-block
+      formControlName="order"
+      item="asc"
+      size="m"
+    >
+      Asc
+    </tui-radio-block>
+
+    <tui-radio-block
+      formControlName="order"
+      item="desc"
+      size="m"
+    >
+      Desc
+    </tui-radio-block>
+
+    <tui-radio-block
+      formControlName="order"
+      item="default"
+      size="m"
+    >
+      Default
+    </tui-radio-block>
+  </div>
+</form>

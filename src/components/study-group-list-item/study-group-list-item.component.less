@@ -1,0 +1,33 @@
+@import '@taiga-ui/core/styles/taiga-ui-local.less';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 650px;
+  border-radius: 0.5rem;
+  border-bottom: 1px solid var(--tui-base-03);
+
+  &:hover {
+    .shadow(1);
+    transition: 0.3s;
+  }
+}
+
+.group-base-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.group-additional-info {
+  .tui-space(top, 2);
+  .tui-space(bottom, 2);
+
+  color: var(--tui-text-02);
+}
+
+.base-label {
+  font: var(--tui-font-text-l);
+}
+
+.additional-label {
+}

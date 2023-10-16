@@ -1,0 +1,13 @@
+<ng-container *ngIf="studyGroup">
+  <div class="group-base-info">
+    <span class="base-label">{{studyGroup.name}}</span>
+    <span class="base-label">{{studyGroup.id}}</span>
+  </div>
+  <div class="group-additional-info">
+    <span class="additional-label">Админ {{studyGroup.groupAdmin.name}}</span>
+    &#8226;
+    <span class="additional-label">Количество студентов {{studyGroup.studentsCount}}</span>
+    &#8226;
+    <span class="additional-label">Средняя оценка {{studyGroup.averageMark}}</span>
+  </div>
+</ng-container>

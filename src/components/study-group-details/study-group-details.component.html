@@ -1,0 +1,108 @@
+<form [formGroup]="detailsForm" (ngSubmit)="onSubmit()">
+  <div formGroupName="general" class="general-group">
+    <div class="heading">General information</div>
+
+    <label tuiLabel="ID" class="control">
+      <tui-input-inline
+        formControlName="id"
+      ></tui-input-inline>
+    </label>
+
+    <label tuiLabel="Name" class="control">
+      <tui-input-inline
+        formControlName="name"
+      ></tui-input-inline>
+    </label>
+
+    <div class="coordinates control">
+      <label tuiLabel="X">
+        <tui-input-inline
+          formControlName="coordinateX"
+        ></tui-input-inline>
+      </label>
+
+      <label tuiLabel="Y">
+        <tui-input-inline
+          formControlName="coordinateY"
+        ></tui-input-inline>
+      </label>
+    </div>
+
+    <label tuiLabel="Students count" class="control">
+      <tui-input-inline
+        formControlName="studentsCount"
+      ></tui-input-inline>
+    </label>
+
+    <label tuiLabel="Transferred students" class="control">
+      <tui-input-inline
+        formControlName="transferredStudents"
+      ></tui-input-inline>
+    </label>
+
+    <label tuiLabel="Average mark" class="control">
+      <tui-input-inline
+        formControlName="averageMark"
+      ></tui-input-inline>
+    </label>
+
+    <label tuiLabel="Semester" class="control">
+      <tui-input-inline
+        formControlName="semester"
+      ></tui-input-inline>
+    </label>
+
+    <tui-input-date
+      formControlName="creationDate"
+      class="control"
+    >
+      Creation date
+    </tui-input-date>
+
+  </div>
+
+  <div formGroupName="groupAdmin" class="group-admin-group">
+    <div class="heading">Group admin</div>
+
+    <label tuiLabel="Name" class="control">
+      <tui-input-inline
+        formControlName="name"
+      ></tui-input-inline>
+    </label>
+
+    <label tuiLabel="Height" class="control">
+      <tui-input-inline
+        formControlName="height"
+      ></tui-input-inline>
+    </label>
+
+    <label tuiLabel="Weight" class="control">
+      <tui-input-inline
+        formControlName="weight"
+      ></tui-input-inline>
+    </label>
+
+    <label tuiLabel="Passport ID" class="control">
+      <tui-input-inline
+        formControlName="passportID"
+      ></tui-input-inline>
+    </label>
+
+    <tui-input-date
+      formControlName="birthday"
+      class="control"
+    >
+      Birthday
+    </tui-input-date>
+  </div>
+
+  <button
+    appearance="primary"
+    tuiButton
+    type="submit"
+    class="submit-button"
+    [disabled]="!isFormChanged"
+  >
+    Update
+  </button>
+</form>
