@@ -1,11 +1,9 @@
-<form [formGroup]="detailsForm" (ngSubmit)="onSubmit()">
+<form [formGroup]="detailsForm">
   <div formGroupName="general" class="general-group">
     <div class="heading">General information</div>
 
     <label tuiLabel="ID" class="control">
-      <tui-input-inline
-        formControlName="id"
-      ></tui-input-inline>
+      {{detailsForm.getRawValue().general.id}}
     </label>
 
     <label tuiLabel="Name" class="control">
@@ -96,13 +94,37 @@
     </tui-input-date>
   </div>
 
-  <button
-    appearance="primary"
-    tuiButton
-    type="submit"
-    class="submit-button"
-    [disabled]="!isFormChanged"
-  >
-    Update
-  </button>
+  <div class="buttons-group">
+    <button
+      *ngIf="dialogMode === 'editing'"
+      appearance="primary"
+      tuiButton
+      class="update-btn"
+      [disabled]="!isFormChanged"
+      [showLoader]="showUpdateLoader"
+      (click)="onUpdate()"
+    >
+      Update
+    </button>
+
+    <button
+      *ngIf="dialogMode === 'editing'"
+      tuiButton
+      appearance="accent"
+      [showLoader]="showDeleteLoader"
+      (click)="onDelete()"
+    >
+      Delete
+    </button>
+
+    <button
+      *ngIf="dialogMode === 'adding'"
+      tuiButton
+      appearance="accent"
+      [showLoader]="showAddLoader"
+      (click)="onAdd()"
+    >
+      Add
+    </button>
+  </div>
 </form>

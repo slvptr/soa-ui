@@ -1,19 +1,19 @@
 <ng-container *tuiLet="status$ | async as status" [ngSwitch]="status">
 
-  <soa-study-group-sort class="sort"></soa-study-group-sort>
+  <soa-sort-bar class="sort"></soa-sort-bar>
 
-  <soa-study-group-list-skeleton
+  <soa-group-list-skeleton
     *ngSwitchCase="DataStatus.Loading"
     class="list"
-  ></soa-study-group-list-skeleton>
+  ></soa-group-list-skeleton>
 
   <ng-container *ngSwitchCase="DataStatus.Loaded">
     <div class="list">
-      <soa-study-group-list-item
+      <soa-group-list-item
         *ngFor="let item of studyGroupList$ | async"
         [studyGroup]="item"
         (click)="onItemClick(item)"
-      ></soa-study-group-list-item>
+      ></soa-group-list-item>
     </div>
   </ng-container>
 

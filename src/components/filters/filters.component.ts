@@ -13,7 +13,12 @@ import {
   TuiIslandModule,
   TuiSelectModule,
 } from '@taiga-ui/kit';
-import { TuiButtonModule, TuiHintModule, TuiSvgModule } from '@taiga-ui/core';
+import {
+  TuiButtonModule,
+  TuiHintModule,
+  TuiSvgModule,
+  TuiTextfieldControllerModule,
+} from '@taiga-ui/core';
 import { Semester } from '../../domain/study-group';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TuiDay, TuiDestroyService } from '@taiga-ui/cdk';
@@ -21,8 +26,7 @@ import { takeUntil } from 'rxjs';
 import { tuiIconRefreshCcwLarge } from '@taiga-ui/icons';
 import { Filters } from '../../domain/controls';
 import { DateUtils } from '../../utils/date-utils';
-import { StudyGroupListStore } from '../../study-group-list-store/store/study-group-list.store';
-import { provideComponentStore } from '@ngrx/component-store';
+import { AppStore } from '../../app-store/store/app.store';
 
 type FiltersForm = {
   id: FormControl<number>;
@@ -38,7 +42,7 @@ type FiltersForm = {
 };
 
 @Component({
-  selector: 'soa-study-group-filters',
+  selector: 'soa-filters',
   standalone: true,
   imports: [
     CommonModule,
@@ -52,13 +56,14 @@ type FiltersForm = {
     ReactiveFormsModule,
     TuiButtonModule,
     TuiSvgModule,
+    TuiTextfieldControllerModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [TuiDestroyService],
-  templateUrl: './study-group-filters.component.html',
-  styleUrls: ['./study-group-filters.component.less'],
+  templateUrl: './filters.component.html',
+  styleUrls: ['./filters.component.less'],
 })
-export class StudyGroupFiltersComponent implements OnInit {
+export class FiltersComponent implements OnInit {
   semestersList = Object.values(Semester).filter(item => !isNaN(item as any));
 
   filtersForm = new FormGroup<FiltersForm>({
@@ -77,7 +82,7 @@ export class StudyGroupFiltersComponent implements OnInit {
   constructor(
     @Inject(TuiDestroyService)
     private readonly destroy$: TuiDestroyService,
-    private readonly studyGroupListStore: StudyGroupListStore
+    private readonly studyGroupListStore: AppStore
   ) {}
 
   ngOnInit() {
@@ -99,7 +104,7 @@ export class StudyGroupFiltersComponent implements OnInit {
           adminName: values.adminName ?? undefined,
           semester: values.semester ?? undefined,
           creationDate: values.creationDate
-            ? DateUtils.tuiDayToISO(values.creationDate)
+            ? DateUtils.tuiDayToISOString(values.creationDate)
             : undefined,
         };
 

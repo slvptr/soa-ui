@@ -5,14 +5,14 @@ import { TuiMarkerIconModule } from '@taiga-ui/kit';
 import { TuiSvgModule } from '@taiga-ui/core';
 
 @Component({
-  selector: 'soa-study-group-list-item',
+  selector: 'soa-group-list-item',
   standalone: true,
   imports: [CommonModule, TuiMarkerIconModule, TuiSvgModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './study-group-list-item.component.html',
-  styleUrls: ['./study-group-list-item.component.less'],
+  templateUrl: './group-list-item.component.html',
+  styleUrls: ['./group-list-item.component.less'],
 })
-export class StudyGroupListItemComponent {
+export class GroupListItemComponent {
   @Input()
   studyGroup: StudyGroup | null = null;
 }

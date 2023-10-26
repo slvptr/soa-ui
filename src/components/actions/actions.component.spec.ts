@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StudyGroupActionsComponent } from './study-group-actions.component';
+import { ActionsComponent } from './actions.component';
 
 describe('StudyGroupActionsComponent', () => {
-  let component: StudyGroupActionsComponent;
-  let fixture: ComponentFixture<StudyGroupActionsComponent>;
+  let component: ActionsComponent;
+  let fixture: ComponentFixture<ActionsComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [StudyGroupActionsComponent]
+      imports: [ActionsComponent],
     });
-    fixture = TestBed.createComponent(StudyGroupActionsComponent);
+    fixture = TestBed.createComponent(ActionsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

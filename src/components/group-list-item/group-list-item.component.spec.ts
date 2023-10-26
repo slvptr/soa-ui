@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { StudyGroupListItemComponent } from './study-group-list-item.component';
+import { GroupListItemComponent } from './group-list-item.component';
 
 describe('StudyGroupListItemComponent', () => {
-  let component: StudyGroupListItemComponent;
-  let fixture: ComponentFixture<StudyGroupListItemComponent>;
+  let component: GroupListItemComponent;
+  let fixture: ComponentFixture<GroupListItemComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [StudyGroupListItemComponent]
+      imports: [GroupListItemComponent],
     });
-    fixture = TestBed.createComponent(StudyGroupListItemComponent);
+    fixture = TestBed.createComponent(GroupListItemComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

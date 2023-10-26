@@ -14,11 +14,11 @@ import {
 import { TuiGroupModule, TuiTextfieldControllerModule } from '@taiga-ui/core';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { takeUntil } from 'rxjs';
-import { StudyGroupListStore } from '../../study-group-list-store/store/study-group-list.store';
+import { AppStore } from '../../app-store/store/app.store';
 import { SortCriteria, SortOrder } from '../../domain/controls';
 
 @Component({
-  selector: 'soa-study-group-sort',
+  selector: 'soa-sort-bar',
   standalone: true,
   imports: [
     CommonModule,
@@ -31,10 +31,10 @@ import { SortCriteria, SortOrder } from '../../domain/controls';
   ],
   providers: [TuiDestroyService],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './study-group-sort.component.html',
-  styleUrls: ['./study-group-sort.component.less'],
+  templateUrl: './sort-bar.component.html',
+  styleUrls: ['./sort-bar.component.less'],
 })
-export class StudyGroupSortComponent implements OnInit {
+export class SortBarComponent implements OnInit {
   sortItems = Object.values(SortCriteria);
 
   sortForm = new FormGroup({
@@ -45,7 +45,7 @@ export class StudyGroupSortComponent implements OnInit {
   constructor(
     @Inject(TuiDestroyService)
     private readonly destroy$: TuiDestroyService,
-    private readonly studyGroupListStore: StudyGroupListStore
+    private readonly store: AppStore
   ) {}
 
   ngOnInit() {
@@ -57,7 +57,7 @@ export class StudyGroupSortComponent implements OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe(({ criteria, order }) => {
         if (criteria && order) {
-          this.studyGroupListStore.setSortParams({ criteria, order });
+          this.store.setSortParams({ criteria, order });
         }
       });
   }
