@@ -2,57 +2,58 @@
   <div formGroupName="general" class="general-group">
     <div class="heading">General information</div>
 
-    <label tuiLabel="ID" class="control">
-      {{detailsForm.getRawValue().general.id}}
+    <label *ngIf="id" tuiLabel="ID" class="control">
+      {{id}}
     </label>
 
-    <label tuiLabel="Name" class="control">
-      <tui-input-inline
-        formControlName="name"
-      ></tui-input-inline>
-    </label>
+    <tui-input formControlName="name" class="control" tuiTextfieldSize="m">
+      Name
+      <input tuiTextfield />
+    </tui-input>
 
     <div class="coordinates control">
-      <label tuiLabel="X">
-        <tui-input-inline
-          formControlName="coordinateX"
-        ></tui-input-inline>
-      </label>
+      <tui-input-number formControlName="coordinateX" class="coordinate" tuiTextfieldSize="m">
+        X
+        <input tuiTextfield />
+      </tui-input-number>
 
-      <label tuiLabel="Y">
-        <tui-input-inline
-          formControlName="coordinateY"
-        ></tui-input-inline>
-      </label>
+      <tui-input-number formControlName="coordinateY" class="coordinate" tuiTextfieldSize="m">
+        Y
+        <input tuiTextfield />
+      </tui-input-number>
     </div>
 
-    <label tuiLabel="Students count" class="control">
-      <tui-input-inline
-        formControlName="studentsCount"
-      ></tui-input-inline>
-    </label>
+    <tui-input-number formControlName="studentsCount" class="control" tuiTextfieldSize="m">
+      Students count
+      <input tuiTextfield />
+    </tui-input-number>
 
-    <label tuiLabel="Transferred students" class="control">
-      <tui-input-inline
-        formControlName="transferredStudents"
-      ></tui-input-inline>
-    </label>
+    <tui-input-number formControlName="transferredStudents" class="control" tuiTextfieldSize="m">
+      Transferred students
+      <input tuiTextfield />
+    </tui-input-number>
 
-    <label tuiLabel="Average mark" class="control">
-      <tui-input-inline
-        formControlName="averageMark"
-      ></tui-input-inline>
-    </label>
+    <tui-input-number formControlName="averageMark" class="control" tuiTextfieldSize="m">
+      Average mark
+      <input tuiTextfield />
+    </tui-input-number>
 
-    <label tuiLabel="Semester" class="control">
-      <tui-input-inline
-        formControlName="semester"
-      ></tui-input-inline>
-    </label>
+    <tui-select formControlName="semester" class="control" tuiTextfieldSize="m">
+      Semester
+      <input
+        placeholder="Semester"
+        tuiTextfield
+      />
+      <tui-data-list-wrapper
+        *tuiDataList
+        [items]="semestersList"
+      ></tui-data-list-wrapper>
+    </tui-select>
 
     <tui-input-date
       formControlName="creationDate"
       class="control"
+      tuiTextfieldSize="m"
     >
       Creation date
     </tui-input-date>
@@ -62,33 +63,30 @@
   <div formGroupName="groupAdmin" class="group-admin-group">
     <div class="heading">Group admin</div>
 
-    <label tuiLabel="Name" class="control">
-      <tui-input-inline
-        formControlName="name"
-      ></tui-input-inline>
-    </label>
+    <tui-input formControlName="name" class="control" tuiTextfieldSize="m">
+      Name
+      <input tuiTextfield />
+    </tui-input>
 
-    <label tuiLabel="Height" class="control">
-      <tui-input-inline
-        formControlName="height"
-      ></tui-input-inline>
-    </label>
+    <tui-input-number formControlName="height" class="control" tuiTextfieldSize="m">
+      Height
+      <input tuiTextfield />
+    </tui-input-number>
 
-    <label tuiLabel="Weight" class="control">
-      <tui-input-inline
-        formControlName="weight"
-      ></tui-input-inline>
-    </label>
+    <tui-input-number formControlName="weight" class="control" tuiTextfieldSize="m">
+      Weight
+      <input tuiTextfield />
+    </tui-input-number>
 
-    <label tuiLabel="Passport ID" class="control">
-      <tui-input-inline
-        formControlName="passportID"
-      ></tui-input-inline>
-    </label>
+    <tui-input formControlName="passportID" class="control" tuiTextfieldSize="m">
+      Passport ID
+      <input tuiTextfield />
+    </tui-input>
 
     <tui-input-date
       formControlName="birthday"
       class="control"
+      tuiTextfieldSize="m"
     >
       Birthday
     </tui-input-date>
@@ -100,6 +98,7 @@
       appearance="primary"
       tuiButton
       class="update-btn"
+      size="m"
       [disabled]="!isFormChanged"
       [showLoader]="showUpdateLoader"
       (click)="onUpdate()"
@@ -111,6 +110,7 @@
       *ngIf="dialogMode === 'editing'"
       tuiButton
       appearance="accent"
+      size="m"
       [showLoader]="showDeleteLoader"
       (click)="onDelete()"
     >
@@ -120,7 +120,8 @@
     <button
       *ngIf="dialogMode === 'adding'"
       tuiButton
-      appearance="accent"
+      appearance="primary"
+      size="m"
       [showLoader]="showAddLoader"
       (click)="onAdd()"
     >

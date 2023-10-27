@@ -17,6 +17,7 @@ import {
   switchMap,
   tap,
   throttleTime,
+  throwError,
   timer,
   withLatestFrom,
 } from 'rxjs';
@@ -71,7 +72,7 @@ const initialState: StudyGroupListState = {
 };
 
 @Injectable()
-export class StudyGroupListStore
+export class AppStore
   extends ComponentStore<StudyGroupListState>
   implements OnStateInit, OnStoreInit
 {
@@ -177,7 +178,10 @@ export class StudyGroupListStore
     return this.actionsService.moveStudents(fromGroup, toGroup).pipe(
       tapResponse({
         next: response => {
-          this.fetchList();
+          this.updateStudyGroupList(
+            initialState.filters,
+            initialState.sortParams
+          ).subscribe();
         },
         error: err => console.error(err),
         finalize: () => this.setMoveActionLoading(false),
@@ -199,17 +203,41 @@ export class StudyGroupListStore
     );
   };
 
-  readonly updateStudyGroup = (studyGroup: StudyGroup) => {
-    this.setStudyGroup(studyGroup);
+  readonly updateStudyGroup = (studyGroup: StudyGroup) =>
+    this.studyGroupService
+      .updateStudyGroup(studyGroup)
+      .pipe(
+        tap(() =>
+          this.updateStudyGroupList(
+            initialState.filters,
+            initialState.sortParams
+          ).subscribe()
+        )
+      );
 
-    return this.studyGroupService.updateStudyGroup(studyGroup).pipe(
-      catchError(() => {
-        this.fetchList();
+  readonly deleteStudyGroup = (id: number) =>
+    this.studyGroupService
+      .deleteStudyGroup(id)
+      .pipe(
+        tap(() =>
+          this.updateStudyGroupList(
+            initialState.filters,
+            initialState.sortParams
+          ).subscribe()
+        )
+      );
 
-        return EMPTY;
-      })
-    );
-  };
+  readonly addStudyGroup = (studyGroup: StudyGroup) =>
+    this.studyGroupService
+      .addStudyGroup(studyGroup)
+      .pipe(
+        tap(() =>
+          this.updateStudyGroupList(
+            initialState.filters,
+            initialState.sortParams
+          ).subscribe()
+        )
+      );
 
   private readonly updateStudyGroupList = (
     filters: Filters,
@@ -256,19 +284,14 @@ export class StudyGroupListStore
     )
   );
 
-  private readonly fetchList = this.effect<void>(trigger$ =>
-    trigger$.pipe(
-      switchMap(() =>
-        this.updateStudyGroupList(initialState.filters, initialState.sortParams)
-      )
-    )
-  );
-
   ngrxOnStoreInit(): void {
     this.setState(initialState);
   }
 
   ngrxOnStateInit(): void {
-    this.fetchList();
+    this.updateStudyGroupList(
+      initialState.filters,
+      initialState.sortParams
+    ).subscribe();
   }
 }

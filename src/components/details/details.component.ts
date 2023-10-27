@@ -10,6 +10,7 @@ import {
   TuiDialogContext,
   TuiErrorModule,
   TuiLabelModule,
+  TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
 import { POLYMORPHEUS_CONTEXT } from '@tinkoff/ng-polymorpheus';
 import { Semester, StudyGroup } from '../../domain/study-group';
@@ -20,9 +21,12 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import {
+  TuiDataListWrapperModule,
   TuiInputDateModule,
   TuiInputInlineModule,
   TuiInputModule,
+  TuiInputNumberModule,
+  TuiSelectModule,
 } from '@taiga-ui/kit';
 import { TuiDay, TuiDestroyService } from '@taiga-ui/cdk';
 import { catchError, EMPTY, finalize, takeUntil, tap } from 'rxjs';
@@ -68,12 +72,19 @@ export type DetailsContextInput = {
     TuiErrorModule,
     TuiInputDateModule,
     TuiInputModule,
+    TuiInputNumberModule,
+    TuiDataListWrapperModule,
+    TuiSelectModule,
+    TuiTextfieldControllerModule,
   ],
   providers: [DetailsService, TuiDestroyService],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.less'],
 })
 export class DetailsComponent implements OnInit {
+  semestersList = Object.values(Semester).filter(item => !isNaN(item as any));
+
+  readonly id = this.context.data.studyGroup.id;
   readonly studyGroupData = this.context.data.studyGroup;
   readonly dialogMode = this.context.data.mode;
 

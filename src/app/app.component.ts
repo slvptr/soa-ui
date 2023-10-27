@@ -1,13 +1,13 @@
 import { TuiRootModule, TuiDialogModule, TuiAlertModule } from '@taiga-ui/core';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StudyGroupListComponent } from '../components/study-group-list/study-group-list.component';
+import { GroupListComponent } from '../components/group-list/group-list.component';
 import { HttpClient } from '@angular/common/http';
-import { StudyGroupFiltersComponent } from '../components/study-group-filters/study-group-filters.component';
-import { StudyGroupActionsComponent } from '../components/study-group-actions/study-group-actions.component';
-import { StudyGroupSortComponent } from '../components/study-group-sort/study-group-sort.component';
+import { FiltersComponent } from '../components/filters/filters.component';
+import { ActionsComponent } from '../components/actions/actions.component';
+import { SortBarComponent } from '../components/sort-bar/sort-bar.component';
 import { provideComponentStore } from '@ngrx/component-store';
-import { StudyGroupListStore } from '../study-group-list-store/store/study-group-list.store';
+import { AppStore } from '../app-store/store/app.store';
 
 @Component({
   selector: 'app-root',
@@ -17,12 +17,12 @@ import { StudyGroupListStore } from '../study-group-list-store/store/study-group
     TuiRootModule,
     TuiDialogModule,
     TuiAlertModule,
-    StudyGroupListComponent,
-    StudyGroupFiltersComponent,
-    StudyGroupActionsComponent,
-    StudyGroupSortComponent,
+    GroupListComponent,
+    FiltersComponent,
+    ActionsComponent,
+    SortBarComponent,
   ],
-  providers: [provideComponentStore(StudyGroupListStore)],
+  providers: [provideComponentStore(AppStore)],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.less'],
 })
