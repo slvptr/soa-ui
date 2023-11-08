@@ -64,7 +64,7 @@ type FiltersForm = {
   styleUrls: ['./filters.component.less'],
 })
 export class FiltersComponent implements OnInit {
-  semestersList = Object.values(Semester).filter(item => !isNaN(item as any));
+  semestersList = Object.values(Semester).filter(item => isNaN(item as any));
 
   filtersForm = new FormGroup<FiltersForm>({
     id: new FormControl(),

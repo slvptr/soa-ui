@@ -10,6 +10,11 @@ export class DetailsService {
     const general = form.general.getRawValue();
     const groupAdmin = form.groupAdmin.getRawValue();
 
+    console.log(
+      general.creationDate,
+      DateUtils.tuiDayToISOString(general.creationDate)
+    );
+
     return {
       id: general.id,
       name: general.name,

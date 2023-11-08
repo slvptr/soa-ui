@@ -81,22 +81,20 @@ export type DetailsContextInput = {
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.less'],
 })
-export class DetailsComponent implements OnInit {
-  semestersList = Object.values(Semester).filter(item => !isNaN(item as any));
+export class DetailsComponent {
+  semestersList = Object.values(Semester).filter(item => isNaN(item as any));
 
   readonly id = this.context.data.studyGroup.id;
   readonly studyGroupData = this.context.data.studyGroup;
   readonly dialogMode = this.context.data.mode;
 
-  private readonly creationDate = new Date(this.studyGroupData.creationDate);
-  private readonly birthdayDate = new Date(
-    this.studyGroupData.groupAdmin.birthday
-  );
+  readonly creationDate = new Date(this.studyGroupData.creationDate);
+  readonly birthdayDate = new Date(this.studyGroupData.groupAdmin.birthday);
 
-  isFormChanged: boolean = true;
-  showUpdateLoader: boolean = false;
-  showDeleteLoader: boolean = false;
-  showAddLoader: boolean = false;
+  isFormChanged = true;
+  showUpdateLoader = false;
+  showDeleteLoader = false;
+  showAddLoader = false;
 
   constructor(
     private readonly detailsService: DetailsService,
@@ -132,9 +130,9 @@ export class DetailsComponent implements OnInit {
       }),
       creationDate: new FormControl(
         new TuiDay(
-          this.birthdayDate.getFullYear(),
-          this.birthdayDate.getMonth(),
-          this.birthdayDate.getDay()
+          this.creationDate.getFullYear(),
+          this.creationDate.getMonth(),
+          this.creationDate.getDate()
         ),
         { nonNullable: true }
       ),
@@ -156,24 +154,12 @@ export class DetailsComponent implements OnInit {
         new TuiDay(
           this.birthdayDate.getFullYear(),
           this.birthdayDate.getMonth(),
-          this.birthdayDate.getDay()
+          this.birthdayDate.getDate()
         ),
         { nonNullable: true }
       ),
     }),
   });
-
-  detectFormChanges() {
-    // this.detailsForm.valueChanges
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe(() => {
-    //     this.isFormChanged = true;
-    //   });
-  }
-
-  ngOnInit() {
-    this.detectFormChanges();
-  }
 
   onUpdate() {
     const studyGroup: StudyGroup = this.detailsService.mapFormToModel(
@@ -189,7 +175,7 @@ export class DetailsComponent implements OnInit {
         takeUntil(this.destroy$)
       )
       .subscribe(updatedStudyGroup =>
-        this.context.completeWith(updatedStudyGroup)
+        this.context.completeWith(updatedStudyGroup[0])
       );
   }
 
@@ -203,7 +189,7 @@ export class DetailsComponent implements OnInit {
         takeUntil(this.destroy$)
       )
       .subscribe(deletedStudyGroup =>
-        this.context.completeWith(deletedStudyGroup)
+        this.context.completeWith(deletedStudyGroup[0])
       );
   }
 
@@ -220,6 +206,8 @@ export class DetailsComponent implements OnInit {
         finalize(() => (this.showAddLoader = false)),
         takeUntil(this.destroy$)
       )
-      .subscribe(addedStudyGroup => this.context.completeWith(addedStudyGroup));
+      .subscribe(addedStudyGroup =>
+        this.context.completeWith(addedStudyGroup[0])
+      );
   }
 }

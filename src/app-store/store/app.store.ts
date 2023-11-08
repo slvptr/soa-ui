@@ -8,8 +8,11 @@ import { StudyGroup } from '../../domain/study-group';
 import { StudyGroupService } from '../data-access/study-group.service';
 import { inject, Injectable } from '@angular/core';
 import {
+  auditTime,
   catchError,
   combineLatest,
+  debounceTime,
+  delay,
   EMPTY,
   interval,
   map,
@@ -38,7 +41,6 @@ export interface StudyGroupListState {
   actions: Actions;
   sortParams: SortParams;
   status: DataStatus;
-  initialized: boolean;
   error?: string;
 }
 
@@ -68,7 +70,6 @@ const initialState: StudyGroupListState = {
     order: SortOrder.Default,
   },
   status: DataStatus.Loading,
-  initialized: false,
 };
 
 @Injectable()
@@ -86,12 +87,16 @@ export class AppStore
   readonly filters$ = this.select(state => state.filters);
   readonly sortParams$ = this.select(state => state.sortParams);
   readonly actions$ = this.select(state => state.actions);
-  readonly initialized$ = this.select(state => state.initialized);
 
   private readonly fetchParams$ = combineLatest([
     this.filters$,
     this.sortParams$,
     this.pagination$,
+  ]);
+
+  private readonly onChangeEffectParams$ = combineLatest([
+    this.filters$,
+    this.sortParams$,
   ]);
 
   private readonly setListLoading = this.updater(
@@ -154,13 +159,11 @@ export class AppStore
   readonly setFilters = this.updater((state, filters: Filters) => ({
     ...state,
     filters,
-    initialized: true,
   }));
 
   readonly setSortParams = this.updater((state, sortParams: SortParams) => ({
     ...state,
     sortParams,
-    initialized: true,
   }));
 
   readonly setPaginationIndex = this.updater((state, index: number) => ({
@@ -169,18 +172,29 @@ export class AppStore
       index,
       length: state.pagination.length,
     },
-    initialized: true,
   }));
+
+  readonly updatePaginationIndex = (index: number) =>
+    this.fetchParams$.pipe(
+      tap(([filters, sortParams, pagination]) =>
+        this.updateStudyGroupList(filters, sortParams, {
+          index,
+          length: pagination.length,
+        })
+      )
+    );
 
   readonly moveStudents = (fromGroup: string, toGroup: string) => {
     this.setMoveActionLoading(true);
 
     return this.actionsService.moveStudents(fromGroup, toGroup).pipe(
+      withLatestFrom(this.fetchParams$),
       tapResponse({
-        next: response => {
+        next: ([_, [filters, sortParams, pagination]]) => {
           this.updateStudyGroupList(
-            initialState.filters,
-            initialState.sortParams
+            filters,
+            sortParams,
+            pagination
           ).subscribe();
         },
         error: err => console.error(err),
@@ -204,66 +218,56 @@ export class AppStore
   };
 
   readonly updateStudyGroup = (studyGroup: StudyGroup) =>
-    this.studyGroupService
-      .updateStudyGroup(studyGroup)
-      .pipe(
-        tap(() =>
-          this.updateStudyGroupList(
-            initialState.filters,
-            initialState.sortParams
-          ).subscribe()
-        )
-      );
+    this.studyGroupService.updateStudyGroup(studyGroup).pipe(
+      withLatestFrom(this.fetchParams$),
+      tap(([_, [filters, sortParams, pagination]]) =>
+        this.updateStudyGroupList(filters, sortParams, pagination).subscribe()
+      )
+    );
 
   readonly deleteStudyGroup = (id: number) =>
-    this.studyGroupService
-      .deleteStudyGroup(id)
-      .pipe(
-        tap(() =>
-          this.updateStudyGroupList(
-            initialState.filters,
-            initialState.sortParams
-          ).subscribe()
-        )
-      );
+    this.studyGroupService.deleteStudyGroup(id).pipe(
+      withLatestFrom(this.fetchParams$),
+      tap(([_, [filters, sortParams, pagination]]) =>
+        this.updateStudyGroupList(filters, sortParams, pagination).subscribe()
+      )
+    );
 
   readonly addStudyGroup = (studyGroup: StudyGroup) =>
-    this.studyGroupService
-      .addStudyGroup(studyGroup)
-      .pipe(
-        tap(() =>
-          this.updateStudyGroupList(
-            initialState.filters,
-            initialState.sortParams
-          ).subscribe()
-        )
-      );
+    this.studyGroupService.addStudyGroup(studyGroup).pipe(
+      withLatestFrom(this.fetchParams$),
+      tap(([_, [filters, sortParams, pagination]]) =>
+        this.updateStudyGroupList(filters, sortParams, pagination).subscribe()
+      )
+    );
 
   private readonly updateStudyGroupList = (
     filters: Filters,
     sortParams: SortParams,
-    pagination?: Pagination
+    pagination: Pagination,
+    updatePagination = true
   ) => {
     this.setListLoading(true);
 
     return this.studyGroupService
       .loadStudyGroupList(filters, sortParams, pagination)
       .pipe(
+        auditTime(400),
         tapResponse({
           next: response => {
             const updatedStateBase = {
-              studyGroupList: response.studyGroupList,
+              studyGroupList: response.studyGroups,
               status: DataStatus.Loaded,
             };
-            return pagination
-              ? this.patchState(updatedStateBase)
-              : this.patchState({
+            updatePagination
+              ? this.patchState({
                   ...updatedStateBase,
                   pagination: {
                     index: response.page,
                     length: response.totalPages,
                   },
-                });
+                })
+              : this.patchState(updatedStateBase);
           },
           error: () =>
             this.patchState({
@@ -274,12 +278,19 @@ export class AppStore
   };
 
   private fetchListOnParamsChange = this.effect(_ =>
-    this.fetchParams$.pipe(
-      throttleTime(300),
-      withLatestFrom(this.initialized$),
-      skipWhile(([_, initialized]) => initialized === false),
-      switchMap(([[filters, sortParams, pagination], _]) =>
+    this.onChangeEffectParams$.pipe(
+      withLatestFrom(this.pagination$),
+      switchMap(([[filters, sortParams], pagination]) =>
         this.updateStudyGroupList(filters, sortParams, pagination)
+      )
+    )
+  );
+
+  private fetchListOnPaginationIndexChange = this.effect(_ =>
+    this.pagination$.pipe(
+      withLatestFrom(this.onChangeEffectParams$),
+      switchMap(([pagination, [filters, sortParams]]) =>
+        this.updateStudyGroupList(filters, sortParams, pagination, false)
       )
     )
   );
@@ -291,7 +302,8 @@ export class AppStore
   ngrxOnStateInit(): void {
     this.updateStudyGroupList(
       initialState.filters,
-      initialState.sortParams
+      initialState.sortParams,
+      initialState.pagination
     ).subscribe();
   }
 }

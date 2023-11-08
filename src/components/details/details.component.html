@@ -3,7 +3,11 @@
     <div class="heading">General information</div>
 
     <label *ngIf="id" tuiLabel="ID" class="control">
-      {{id}}
+      <span class="tui-text_body-s">{{id}}</span>
+    </label>
+
+    <label *ngIf="creationDate" tuiLabel="Creation Date" class="control ">
+      <span class="tui-text_body-s">{{creationDate.toDateString()}}</span>
     </label>
 
     <tui-input formControlName="name" class="control" tuiTextfieldSize="m">
@@ -49,15 +53,6 @@
         [items]="semestersList"
       ></tui-data-list-wrapper>
     </tui-select>
-
-    <tui-input-date
-      formControlName="creationDate"
-      class="control"
-      tuiTextfieldSize="m"
-    >
-      Creation date
-    </tui-input-date>
-
   </div>
 
   <div formGroupName="groupAdmin" class="group-admin-group">

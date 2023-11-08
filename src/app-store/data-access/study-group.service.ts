@@ -1,26 +1,51 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, of, switchMap, timer } from 'rxjs';
+import { Coordinates, Person, StudyGroup } from '../../domain/study-group';
 import {
-  mergeMap,
-  Observable,
-  of,
-  switchMap,
-  throttle,
-  throttleTime,
-  throwError,
-  timer,
-} from 'rxjs';
-import { StudyGroup } from '../../domain/study-group';
-import { studyGroupListMock } from './study-group.mock';
-import { Filters, Pagination, SortParams } from '../../domain/controls';
+  Filters,
+  Pagination,
+  SortOrder,
+  SortParams,
+} from '../../domain/controls';
 
 export interface StudyGroupListApiResponse {
-  readonly studyGroupList: StudyGroup[];
+  readonly studyGroups: StudyGroup[];
   readonly page: number;
   readonly pageSize: number;
   readonly totalPages: number;
   readonly totalCount: number;
 }
+
+export interface StudyGroupView {
+  readonly name: string;
+  readonly coordinates: Coordinates;
+  readonly studentsCount: number;
+  readonly transferredStudents: number;
+  readonly averageMark: number;
+  readonly semester: string;
+  readonly groupAdmin: Person;
+}
+
+const getGroupViewParams = ({
+  name,
+  coordinates,
+  studentsCount,
+  transferredStudents,
+  averageMark,
+  semesterEnum,
+  groupAdmin,
+}: StudyGroup): StudyGroupView => ({
+  name,
+  coordinates,
+  studentsCount,
+  transferredStudents,
+  averageMark,
+  semester: semesterEnum.toString(),
+  groupAdmin,
+});
+
+const API_BASE_URL = 'http://localhost:8080/api/v1/groups';
 
 @Injectable({ providedIn: 'root' })
 export class StudyGroupService {
@@ -31,31 +56,43 @@ export class StudyGroupService {
     sortParams: SortParams,
     pagination?: Pagination
   ): Observable<StudyGroupListApiResponse> {
-    console.log(`study-group.service [load]`);
-    return timer(1000).pipe(switchMap(() => of(studyGroupListMock)));
+    const sortParameters =
+      sortParams.order !== SortOrder.Default
+        ? {
+            sortBy: sortParams.criteria,
+            sortDir: sortParams.order,
+          }
+        : {};
+
+    const params = {
+      page: pagination?.index ?? 0,
+      ...sortParameters,
+    } as any;
+
+    return this.http.post<StudyGroupListApiResponse>(
+      `${API_BASE_URL}/filtered`,
+      filters,
+      {
+        params,
+      }
+    );
   }
 
   updateStudyGroup(studyGroup: StudyGroup): Observable<StudyGroup> {
-    console.log(`study-group.service [update]`);
-
-    return timer(1000).pipe(
-      switchMap(() => of(studyGroupListMock.studyGroupList[0]))
+    return this.http.put<StudyGroup>(
+      `${API_BASE_URL}/${studyGroup.id}`,
+      getGroupViewParams(studyGroup)
     );
   }
 
   deleteStudyGroup(id: number): Observable<StudyGroup> {
-    console.log(`study-group.service [delete]`);
-
-    return timer(1000).pipe(
-      switchMap(() => of(studyGroupListMock.studyGroupList[0]))
-    );
+    return this.http.delete<StudyGroup>(`${API_BASE_URL}/${id}`);
   }
 
   addStudyGroup(studyGroup: StudyGroup): Observable<StudyGroup> {
-    console.log(`study-group.service [add]`);
-
-    return timer(1000).pipe(
-      switchMap(() => of(studyGroupListMock.studyGroupList[0]))
+    return this.http.post<StudyGroup>(
+      `${API_BASE_URL}`,
+      getGroupViewParams(studyGroup)
     );
   }
 }
