@@ -42,7 +42,7 @@ type FiltersForm = {
 };
 
 @Component({
-  selector: 'soa-filters',
+  selector: 'app-filters',
   standalone: true,
   imports: [
     CommonModule,
@@ -100,7 +100,7 @@ export class FiltersComponent implements OnInit {
           coordinateY: values.coordinateY ?? undefined,
           studentsCount: values.studentsCount ?? undefined,
           transferredStudents: values.transferredStudents ?? undefined,
-          averageMark: values.transferredStudents ?? undefined,
+          averageMark: values.averageMark ?? undefined,
           adminName: values.adminName ?? undefined,
           semester: values.semester ?? undefined,
           creationDate: values.creationDate

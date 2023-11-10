@@ -3,7 +3,7 @@ import { Semester, StudyGroup } from '../../domain/study-group';
 import { DateUtils } from '../../utils/date-utils';
 
 @Injectable()
-export class ActionsService {
+export class PrimaryActionsService {
   createEmptyStudyGroup(): StudyGroup {
     return {
       averageMark: 0,

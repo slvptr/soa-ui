@@ -1,0 +1,74 @@
+<tui-island *tuiLet="actions$ | async as actions">
+  <p class="tui-island__category">primary service actions</p>
+
+  <span class="tui-text_body-s action-label">Delete all groups by average mark</span>
+  <form
+    [formGroup]="averageMarkForm"
+    (ngSubmit)="onDeleteButtonClick()"
+    tuiGroup
+    class="group"
+  >
+    <tui-input-number formControlName="averageMark" tuiTextfieldSize="s">
+      Average mark
+      <input tuiTextfield required />
+    </tui-input-number>
+
+    <button
+      appearance="secondary-destructive"
+      tuiButton
+      type="submit"
+      size="s"
+      [showLoader]="actions?.delete?.isLoading ?? false"
+    >
+      Delete
+    </button>
+  </form>
+
+  <span class="tui-text_body-s action-label action-label_top-margin">Get groups with the transferredStudents less than</span>
+  <form
+    [formGroup]="transferredStudentsForm"
+    (ngSubmit)="onGetGroupsTransferredLessButtonClick()"
+    tuiGroup
+    class="group"
+  >
+    <tui-input-number formControlName="transferredStudents" tuiTextfieldSize="s">
+      Transferred students
+      <input tuiTextfield required />
+    </tui-input-number>
+
+    <button
+      appearance="secondary"
+      tuiButton
+      type="submit"
+      size="s"
+      [showLoader]="actions?.getGroupsWithTransferredLess?.isLoading ?? false"
+    >
+      Get
+    </button>
+  </form>
+
+  <span class="tui-text_body-s action-label action-label_top-margin">Get group with the smallest coordinates</span>
+  <button
+    appearance="secondary"
+    tuiButton
+    class="no-param-action-btn"
+    type="button"
+    size="s"
+    [showLoader]="actions?.getGroupWithSmallestCoordinate?.isLoading ?? false"
+    (click)="onGetGroupSmallestCoordinateButtonClick()"
+  >
+    Get
+  </button>
+
+  <span class="tui-text_body-s action-label action-label_top-margin">Add new study group</span>
+  <button
+    appearance="secondary"
+    tuiButton
+    class="no-param-action-btn"
+    type="button"
+    size="s"
+    (click)="onAddButtonClick()"
+  >
+    Add
+  </button>
+</tui-island>

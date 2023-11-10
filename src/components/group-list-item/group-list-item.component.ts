@@ -5,7 +5,7 @@ import { TuiMarkerIconModule } from '@taiga-ui/kit';
 import { TuiSvgModule } from '@taiga-ui/core';
 
 @Component({
-  selector: 'soa-group-list-item',
+  selector: 'app-group-list-item',
   standalone: true,
   imports: [CommonModule, TuiMarkerIconModule, TuiSvgModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

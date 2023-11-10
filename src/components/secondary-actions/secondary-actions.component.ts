@@ -14,21 +14,26 @@ import {
   TuiPrimitiveTextfieldModule,
   TuiTextfieldControllerModule,
 } from '@taiga-ui/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AppStore } from '../../app-store/store/app.store';
 import { TuiDestroyService, TuiLetModule } from '@taiga-ui/cdk';
 import { PolymorpheusComponent } from '@tinkoff/ng-polymorpheus';
 import { DetailsComponent } from '../details/details.component';
 import { takeUntil } from 'rxjs';
-import { ActionsService } from './actions.service';
+import { PrimaryActionsService } from '../primary-actions/primary-actions.service';
 
 type MoveStudentsForm = {
-  from: FormControl<string>;
-  to: FormControl<string>;
+  from: FormControl<string | null>;
+  to: FormControl<string | null>;
 };
 
 @Component({
-  selector: 'soa-actions',
+  selector: 'app-secondary-actions',
   standalone: true,
   imports: [
     CommonModule,
@@ -43,20 +48,19 @@ type MoveStudentsForm = {
     TuiTextfieldControllerModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './actions.component.html',
-  styleUrls: ['./actions.component.less'],
-  providers: [TuiDestroyService, ActionsService],
+  templateUrl: './secondary-actions.component.html',
+  styleUrls: ['./secondary-actions.component.less'],
+  providers: [TuiDestroyService],
 })
-export class ActionsComponent {
+export class SecondaryActionsComponent {
   moveStudentsForm = new FormGroup<MoveStudentsForm>({
-    from: new FormControl(),
-    to: new FormControl(),
+    from: new FormControl('', [Validators.required]),
+    to: new FormControl('', [Validators.required]),
   });
 
-  readonly actions$ = this.store.actions$;
+  readonly actions$ = this.store.secondaryActions$;
 
   constructor(
-    private readonly actionsService: ActionsService,
     private readonly store: AppStore,
     @Inject(TuiDestroyService)
     private readonly destroy$: TuiDestroyService,
@@ -66,22 +70,17 @@ export class ActionsComponent {
 
   onMoveButtonClick() {
     const formValue = this.moveStudentsForm.getRawValue();
-    this.store.moveStudents(formValue.from, formValue.to).subscribe();
+
+    if (
+      this.moveStudentsForm.valid &&
+      formValue.from !== null &&
+      formValue.to !== null
+    ) {
+      this.store.moveStudents(formValue.from, formValue.to).subscribe();
+    }
   }
 
   onCountButtonClick() {
-    this.store.countExpelled().subscribe();
-  }
-
-  onAddButtonClick() {
-    this.dialogService
-      .open(new PolymorpheusComponent(DetailsComponent, this.injector), {
-        data: {
-          studyGroup: this.actionsService.createEmptyStudyGroup(),
-          mode: 'adding',
-        },
-      })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe();
+    this.store.countTransferred().subscribe();
   }
 }

@@ -16,9 +16,10 @@ import { PolymorpheusComponent } from '@tinkoff/ng-polymorpheus';
 import { DetailsComponent } from '../details/details.component';
 import { takeUntil } from 'rxjs';
 import { SortBarComponent } from '../sort-bar/sort-bar.component';
+import { GroupListEmptyComponent } from '../group-list-empty/group-list-empty.component';
 
 @Component({
-  selector: 'soa-group-list',
+  selector: 'app-group-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -27,6 +28,7 @@ import { SortBarComponent } from '../sort-bar/sort-bar.component';
     TuiPaginationModule,
     GroupListSkeletonComponent,
     SortBarComponent,
+    GroupListEmptyComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './group-list.component.html',
@@ -41,7 +43,7 @@ export class GroupListComponent {
   readonly pagination$ = this.store.pagination$;
 
   navigateToPage(index: number): void {
-    this.store.setPaginationIndex(index);
+    this.store.updatePaginationIndex(index).subscribe();
   }
 
   onItemClick(studyGroup: StudyGroup) {

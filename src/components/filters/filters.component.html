@@ -4,29 +4,29 @@
 
     <div class="row">
       <div class="col">
-        <tui-input-number formControlName="id" class="input-block" tuiTextfieldSize="m">
+        <tui-input-number formControlName="id" class="input-block" tuiTextfieldSize="s">
           Id
           <input tuiTextfield />
         </tui-input-number>
 
-        <tui-input formControlName="groupName" class="input-block" tuiTextfieldSize="m">
+        <tui-input formControlName="groupName" class="input-block" tuiTextfieldSize="s">
           Group name
           <input tuiTextfield />
         </tui-input>
 
         <div class="coordinates input-block">
-          <tui-input-number formControlName="coordinateX" tuiTextfieldSize="m">
+          <tui-input-number formControlName="coordinateX" tuiTextfieldSize="s">
             X
             <input tuiTextfield />
           </tui-input-number>
 
-          <tui-input-number formControlName="coordinateY" tuiTextfieldSize="m">
+          <tui-input-number formControlName="coordinateY" tuiTextfieldSize="s">
             Y
             <input tuiTextfield />
           </tui-input-number>
         </div>
 
-        <tui-select formControlName="semester" class="input-block" tuiTextfieldSize="m">
+        <tui-select formControlName="semester" class="input-block" tuiTextfieldSize="s">
           Semester
           <input
             placeholder="Select semester"
@@ -38,39 +38,38 @@
           ></tui-data-list-wrapper>
         </tui-select>
 
-        <tui-input-date formControlName="creationDate" class="input-block" tuiTextfieldSize="m">
+        <tui-input-date formControlName="creationDate" class="input-block" tuiTextfieldSize="s">
           Creation date
         </tui-input-date>
       </div>
 
       <div class="col">
-        <tui-input-number formControlName="studentsCount" class="input-block" tuiTextfieldSize="m">
+        <tui-input-number formControlName="studentsCount" class="input-block" tuiTextfieldSize="s">
           Students count
           <input tuiTextfield />
         </tui-input-number>
 
-        <tui-input-number formControlName="transferredStudents" class="input-block" tuiTextfieldSize="m">
+        <tui-input-number formControlName="transferredStudents" class="input-block" tuiTextfieldSize="s">
           Transferred students
           <input tuiTextfield />
         </tui-input-number>
 
-        <tui-input-number formControlName="averageMark" class="input-block" tuiTextfieldSize="m">
+        <tui-input-number formControlName="averageMark" class="input-block" tuiTextfieldSize="s">
           Average mark
           <input tuiTextfield />
         </tui-input-number>
 
-        <tui-input formControlName="adminName" class="input-block" tuiTextfieldSize="m">
+        <tui-input formControlName="adminName" class="input-block" tuiTextfieldSize="s">
           Admin name
           <input tuiTextfield />
         </tui-input>
 
         <button
           appearance="icon"
-          icon="tuiIconRefreshCcw"
           tuiButton
           type="button"
           class="refresh-button"
-          size="m"
+          size="s"
           (click)="onRefresh()"
         >
           Refresh

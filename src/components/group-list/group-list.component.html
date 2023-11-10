@@ -1,27 +1,31 @@
 <ng-container *tuiLet="status$ | async as status" [ngSwitch]="status">
+  <ng-container *tuiLet="studyGroupList$ | async as studyGroupList">
+    <app-sort-bar class="sort"></app-sort-bar>
 
-  <soa-sort-bar class="sort"></soa-sort-bar>
+    <app-group-list-skeleton
+      *ngSwitchCase="DataStatus.Loading"
+      class="list"
+    ></app-group-list-skeleton>
 
-  <soa-group-list-skeleton
-    *ngSwitchCase="DataStatus.Loading"
-    class="list"
-  ></soa-group-list-skeleton>
+    <ng-container *ngSwitchCase="DataStatus.Loaded">
+      <div class="list">
+        <app-group-list-item
+          *ngFor="let item of studyGroupList"
+          [studyGroup]="item"
+          (click)="onItemClick(item)"
+        ></app-group-list-item>
+      </div>
+      <app-group-list-empty *ngIf="studyGroupList?.length === 0"></app-group-list-empty>
+    </ng-container>
 
-  <ng-container *ngSwitchCase="DataStatus.Loaded">
-    <div class="list">
-      <soa-group-list-item
-        *ngFor="let item of studyGroupList$ | async"
-        [studyGroup]="item"
-        (click)="onItemClick(item)"
-      ></soa-group-list-item>
-    </div>
+    <ng-container *tuiLet="pagination$ | async as pagination">
+      <tui-pagination
+        *ngIf="pagination?.length !== 1"
+        [index]="pagination?.index ?? 0"
+        [length]="pagination?.length ?? 0"
+        (indexChange)="navigateToPage($event)"
+        class="pagination"
+      ></tui-pagination>
+    </ng-container>
   </ng-container>
-
-  <tui-pagination
-    *tuiLet="pagination$ | async as pagination"
-    [index]="pagination?.index ?? 0"
-    [length]="pagination?.length ?? 0"
-    (indexChange)="navigateToPage($event)"
-    class="pagination"
-  ></tui-pagination>
 </ng-container>

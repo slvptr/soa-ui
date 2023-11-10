@@ -1,0 +1,50 @@
+<tui-island *tuiLet="actions$ | async as actions">
+  <p class="tui-island__category">secondary service actions</p>
+
+  <span class="tui-text_body-s action-label">Move all student from one group to another</span>
+  <form
+    [formGroup]="moveStudentsForm"
+    (ngSubmit)="onMoveButtonClick()"
+    tuiGroup
+    class="group"
+  >
+    <tui-input formControlName="from" tuiTextfieldSize="s">
+      From
+      <input tuiTextfield />
+    </tui-input>
+
+    <tui-input formControlName="to" tuiTextfieldSize="s">
+      To
+      <input tuiTextfield />
+    </tui-input>
+
+    <button
+      appearance="secondary-destructive"
+      tuiButton
+      type="submit"
+      size="s"
+      [showLoader]="actions?.move?.isLoading ?? false"
+    >
+      Move
+    </button>
+  </form>
+
+  <span class="tui-text_body-s action-label action-label_top-margin">Count transferred students</span>
+  <div
+    tuiGroup
+    class="group"
+  >
+    <button
+      appearance="secondary"
+      tuiButton
+      type="button"
+      size="s"
+      [showLoader]="actions?.count?.isLoading ?? false"
+      (click)="onCountButtonClick()"
+    >
+      Count
+    </button>
+
+    <tui-primitive-textfield tuiTextfieldSize="s" [disabled]="true">{{actions?.count?.value ?? ''}}</tui-primitive-textfield>
+  </div>
+</tui-island>

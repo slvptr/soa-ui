@@ -18,7 +18,7 @@ import { AppStore } from '../../app-store/store/app.store';
 import { SortCriteria, SortOrder } from '../../domain/controls';
 
 @Component({
-  selector: 'soa-sort-bar',
+  selector: 'app-sort-bar',
   standalone: true,
   imports: [
     CommonModule,
