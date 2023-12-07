@@ -9,28 +9,21 @@ import { StudyGroupService } from '../data-access/study-group.service';
 import { inject, Injectable } from '@angular/core';
 import {
   auditTime,
-  catchError,
   combineLatest,
-  debounceTime,
-  delay,
-  EMPTY,
-  interval,
-  map,
-  skipWhile,
   switchMap,
+  take,
   tap,
-  throttleTime,
   throwError,
-  timer,
   withLatestFrom,
 } from 'rxjs';
 import {
-  Actions,
+  SecondaryActions,
   Filters,
   Pagination,
   SortCriteria,
   SortOrder,
   SortParams,
+  PrimaryActions,
 } from '../../domain/controls';
 import { ActionsService } from '../data-access/actions.service';
 
@@ -38,7 +31,8 @@ export interface StudyGroupListState {
   studyGroupList: StudyGroup[];
   pagination: Pagination;
   filters: Filters;
-  actions: Actions;
+  primaryActions: PrimaryActions;
+  secondaryActions: SecondaryActions;
   sortParams: SortParams;
   status: DataStatus;
   error?: string;
@@ -55,9 +49,21 @@ const initialState: StudyGroupListState = {
   pagination: {
     index: 0,
     length: 0,
+    totalCount: 0,
   },
   filters: {},
-  actions: {
+  primaryActions: {
+    delete: {
+      isLoading: false,
+    },
+    getGroupWithSmallestCoordinate: {
+      isLoading: false,
+    },
+    getGroupsWithTransferredLess: {
+      isLoading: false,
+    },
+  },
+  secondaryActions: {
     move: {
       isLoading: false,
     },
@@ -86,7 +92,8 @@ export class AppStore
   readonly pagination$ = this.select(state => state.pagination);
   readonly filters$ = this.select(state => state.filters);
   readonly sortParams$ = this.select(state => state.sortParams);
-  readonly actions$ = this.select(state => state.actions);
+  readonly primaryActions$ = this.select(state => state.primaryActions);
+  readonly secondaryActions$ = this.select(state => state.secondaryActions);
 
   private readonly fetchParams$ = combineLatest([
     this.filters$,
@@ -109,9 +116,9 @@ export class AppStore
   private readonly setMoveActionLoading = this.updater(
     (state, isLoading: boolean) => ({
       ...state,
-      actions: {
+      secondaryActions: {
         move: { isLoading },
-        count: state.actions.count,
+        count: state.secondaryActions.count,
       },
     })
   );
@@ -119,10 +126,48 @@ export class AppStore
   private readonly setCountActionLoading = this.updater(
     (state, isLoading: boolean) => ({
       ...state,
-      actions: {
-        move: state.actions.move,
+      secondaryActions: {
+        move: state.secondaryActions.move,
         count: {
-          value: state.actions.count.value,
+          value: state.secondaryActions.count.value,
+          isLoading,
+        },
+      },
+    })
+  );
+
+  private readonly setDeleteByAverageMarkActionLoading = this.updater(
+    (state, isLoading: boolean) => ({
+      ...state,
+      primaryActions: {
+        ...state.primaryActions,
+        delete: {
+          value: state.primaryActions.delete.value,
+          isLoading,
+        },
+      },
+    })
+  );
+
+  private readonly setGroupsWithTransferredLessLoading = this.updater(
+    (state, isLoading: boolean) => ({
+      ...state,
+      primaryActions: {
+        ...state.primaryActions,
+        getGroupsWithTransferredLess: {
+          value: state.primaryActions.getGroupsWithTransferredLess.value,
+          isLoading,
+        },
+      },
+    })
+  );
+
+  private readonly setGroupWithSmallestCoordinateLoading = this.updater(
+    (state, isLoading: boolean) => ({
+      ...state,
+      primaryActions: {
+        ...state.primaryActions,
+        getGroupWithSmallestCoordinate: {
           isLoading,
         },
       },
@@ -132,28 +177,14 @@ export class AppStore
   private readonly setCountActionValue = this.updater(
     (state, value: number) => ({
       ...state,
-      actions: {
-        move: state.actions.move,
+      secondaryActions: {
+        move: state.secondaryActions.move,
         count: {
-          isLoading: state.actions.count.isLoading,
+          isLoading: state.secondaryActions.count.isLoading,
           value,
         },
       },
     })
-  );
-
-  private readonly setStudyGroup = this.updater(
-    (state, studyGroup: StudyGroup) => {
-      const oldStudyGroup = state.studyGroupList.find(
-        ({ id }) => id === studyGroup.id
-      );
-      const idx = state.studyGroupList.indexOf(oldStudyGroup!);
-
-      const newState = structuredClone(state);
-      newState.studyGroupList[idx] = studyGroup;
-
-      return newState;
-    }
   );
 
   readonly setFilters = this.updater((state, filters: Filters) => ({
@@ -169,20 +200,28 @@ export class AppStore
   readonly setPaginationIndex = this.updater((state, index: number) => ({
     ...state,
     pagination: {
+      ...state.pagination,
       index,
-      length: state.pagination.length,
     },
   }));
 
-  readonly updatePaginationIndex = (index: number) =>
-    this.fetchParams$.pipe(
-      tap(([filters, sortParams, pagination]) =>
-        this.updateStudyGroupList(filters, sortParams, {
-          index,
-          length: pagination.length,
-        })
-      )
+  readonly updatePaginationIndex = (index: number) => {
+    this.setPaginationIndex(index);
+
+    return this.fetchParams$.pipe(
+      tapResponse({
+        next: ([filters, sortParams, pagination]) => {
+          this.updateStudyGroupList(
+            filters,
+            sortParams,
+            pagination
+          ).subscribe();
+        },
+        error: err => console.error(err),
+      }),
+      take(1)
     );
+  };
 
   readonly moveStudents = (fromGroup: string, toGroup: string) => {
     this.setMoveActionLoading(true);
@@ -197,22 +236,93 @@ export class AppStore
             pagination
           ).subscribe();
         },
-        error: err => console.error(err),
+        error: err => {
+          throw new Error();
+        },
         finalize: () => this.setMoveActionLoading(false),
       })
     );
   };
 
-  readonly countExpelled = () => {
+  readonly countTransferred = () => {
     this.setCountActionLoading(true);
 
-    return this.actionsService.countExpelled().pipe(
+    return this.actionsService.countTransferred().pipe(
       tapResponse({
         next: response => {
-          this.setCountActionValue(response.numberOfExpelledStudents);
+          this.setCountActionValue(response);
         },
         error: err => console.error(err),
         finalize: () => this.setCountActionLoading(false),
+      })
+    );
+  };
+
+  readonly deleteAllByAverageMark = (averageMark: number) => {
+    this.setDeleteByAverageMarkActionLoading(true);
+
+    return this.studyGroupService.deleteAllByAverageMark(averageMark).pipe(
+      auditTime(400),
+      withLatestFrom(this.fetchParams$),
+      tapResponse({
+        next: ([_, [filters, sortParams, pagination]]) =>
+          this.updateStudyGroupList(
+            filters,
+            sortParams,
+            pagination
+          ).subscribe(),
+        error: err => console.error(err),
+        finalize: () => this.setDeleteByAverageMarkActionLoading(false),
+      })
+    );
+  };
+
+  readonly getGroupsWithTransferredLess = (transferredStudents: number) => {
+    this.setGroupsWithTransferredLessLoading(true);
+    this.setListLoading(true);
+
+    return this.studyGroupService
+      .getGroupsWithTransferredStudentsLessThan(transferredStudents)
+      .pipe(
+        auditTime(400),
+        tapResponse({
+          next: list => {
+            this.patchState({
+              studyGroupList: list,
+              status: DataStatus.Loaded,
+              pagination: {
+                index: 0,
+                length: 1,
+                totalCount: list.length,
+              },
+            });
+          },
+          error: err => console.error(err),
+          finalize: () => this.setGroupsWithTransferredLessLoading(false),
+        })
+      );
+  };
+
+  readonly getGroupWithSmallestCoordinates = () => {
+    this.setGroupWithSmallestCoordinateLoading(true);
+    this.setListLoading(true);
+
+    return this.studyGroupService.getGroupWithSmallestCoordinate().pipe(
+      auditTime(400),
+      tapResponse({
+        next: studyGroup => {
+          this.patchState({
+            studyGroupList: [studyGroup],
+            status: DataStatus.Loaded,
+            pagination: {
+              index: 0,
+              length: 1,
+              totalCount: 1,
+            },
+          });
+        },
+        error: err => console.error(err),
+        finalize: () => this.setGroupWithSmallestCoordinateLoading(false),
       })
     );
   };
@@ -227,10 +337,13 @@ export class AppStore
 
   readonly deleteStudyGroup = (id: number) =>
     this.studyGroupService.deleteStudyGroup(id).pipe(
-      withLatestFrom(this.fetchParams$),
-      tap(([_, [filters, sortParams, pagination]]) =>
-        this.updateStudyGroupList(filters, sortParams, pagination).subscribe()
-      )
+      withLatestFrom(this.fetchParams$, this.studyGroupList$),
+      tap(([_, [filters, sortParams, pagination], list]) => {
+        if (list.length === 1) {
+          pagination.index = Math.max(pagination.index - 1, 0);
+        }
+        this.updateStudyGroupList(filters, sortParams, pagination).subscribe();
+      })
     );
 
   readonly addStudyGroup = (studyGroup: StudyGroup) =>
@@ -244,8 +357,7 @@ export class AppStore
   private readonly updateStudyGroupList = (
     filters: Filters,
     sortParams: SortParams,
-    pagination: Pagination,
-    updatePagination = true
+    pagination: Pagination
   ) => {
     this.setListLoading(true);
 
@@ -254,21 +366,16 @@ export class AppStore
       .pipe(
         auditTime(400),
         tapResponse({
-          next: response => {
-            const updatedStateBase = {
+          next: response =>
+            this.patchState({
               studyGroupList: response.studyGroups,
               status: DataStatus.Loaded,
-            };
-            updatePagination
-              ? this.patchState({
-                  ...updatedStateBase,
-                  pagination: {
-                    index: response.page,
-                    length: response.totalPages,
-                  },
-                })
-              : this.patchState(updatedStateBase);
-          },
+              pagination: {
+                index: response.page,
+                length: response.totalPages,
+                totalCount: response.totalCount,
+              },
+            }),
           error: () =>
             this.patchState({
               status: DataStatus.Error,
@@ -282,15 +389,6 @@ export class AppStore
       withLatestFrom(this.pagination$),
       switchMap(([[filters, sortParams], pagination]) =>
         this.updateStudyGroupList(filters, sortParams, pagination)
-      )
-    )
-  );
-
-  private fetchListOnPaginationIndexChange = this.effect(_ =>
-    this.pagination$.pipe(
-      withLatestFrom(this.onChangeEffectParams$),
-      switchMap(([pagination, [filters, sortParams]]) =>
-        this.updateStudyGroupList(filters, sortParams, pagination, false)
       )
     )
   );

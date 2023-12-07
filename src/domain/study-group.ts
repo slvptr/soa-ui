@@ -12,11 +12,11 @@ export interface Person {
 }
 
 export enum Semester {
-  SECOND = 2,
-  THIRD = 3,
-  FOURTH = 4,
-  SIXTH = 6,
-  SEVENTH = 7,
+  SECOND = 'SECOND',
+  THIRD = 'THIRD',
+  FOURTH = 'FOURTH',
+  SIXTH = 'SIXTH',
+  SEVENTH = 'SEVENTH',
 }
 
 export interface StudyGroup {

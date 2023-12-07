@@ -10,11 +10,14 @@
       <span class="tui-text_body-s">{{creationDate.toDateString()}}</span>
     </label>
 
-    <tui-input formControlName="name" class="control" tuiTextfieldSize="m">
+    <tui-error [error]="errorMessages.groupName"></tui-error>
+    <tui-input formControlName="groupName" class="control" tuiTextfieldSize="m">
       Name
       <input tuiTextfield />
     </tui-input>
 
+
+    <tui-error [error]="errorMessages.coordinates"></tui-error>
     <div class="coordinates control">
       <tui-input-number formControlName="coordinateX" class="coordinate" tuiTextfieldSize="m">
         X
@@ -27,16 +30,19 @@
       </tui-input-number>
     </div>
 
+    <tui-error [error]="errorMessages.studentsCount"></tui-error>
     <tui-input-number formControlName="studentsCount" class="control" tuiTextfieldSize="m">
       Students count
       <input tuiTextfield />
     </tui-input-number>
 
+    <tui-error [error]="errorMessages.transferredStudents"></tui-error>
     <tui-input-number formControlName="transferredStudents" class="control" tuiTextfieldSize="m">
       Transferred students
       <input tuiTextfield />
     </tui-input-number>
 
+    <tui-error [error]="errorMessages.averageMark"></tui-error>
     <tui-input-number formControlName="averageMark" class="control" tuiTextfieldSize="m">
       Average mark
       <input tuiTextfield />
@@ -58,21 +64,25 @@
   <div formGroupName="groupAdmin" class="group-admin-group">
     <div class="heading">Group admin</div>
 
-    <tui-input formControlName="name" class="control" tuiTextfieldSize="m">
+    <tui-error [error]="errorMessages.adminName"></tui-error>
+    <tui-input formControlName="adminName" class="control" tuiTextfieldSize="m">
       Name
       <input tuiTextfield />
     </tui-input>
 
+    <tui-error [error]="errorMessages.height"></tui-error>
     <tui-input-number formControlName="height" class="control" tuiTextfieldSize="m">
       Height
       <input tuiTextfield />
     </tui-input-number>
 
+    <tui-error [error]="errorMessages.weight"></tui-error>
     <tui-input-number formControlName="weight" class="control" tuiTextfieldSize="m">
       Weight
       <input tuiTextfield />
     </tui-input-number>
 
+    <tui-error [error]="errorMessages.passportID"></tui-error>
     <tui-input formControlName="passportID" class="control" tuiTextfieldSize="m">
       Passport ID
       <input tuiTextfield />
@@ -90,11 +100,11 @@
   <div class="buttons-group">
     <button
       *ngIf="dialogMode === 'editing'"
-      appearance="primary"
+      appearance="secondary"
       tuiButton
       class="update-btn"
       size="m"
-      [disabled]="!isFormChanged"
+      [disabled]="!detailsForm.valid"
       [showLoader]="showUpdateLoader"
       (click)="onUpdate()"
     >
@@ -104,7 +114,7 @@
     <button
       *ngIf="dialogMode === 'editing'"
       tuiButton
-      appearance="accent"
+      appearance="secondary-destructive"
       size="m"
       [showLoader]="showDeleteLoader"
       (click)="onDelete()"
@@ -115,8 +125,9 @@
     <button
       *ngIf="dialogMode === 'adding'"
       tuiButton
-      appearance="primary"
+      appearance="secondary"
       size="m"
+      [disabled]="!detailsForm.valid"
       [showLoader]="showAddLoader"
       (click)="onAdd()"
     >

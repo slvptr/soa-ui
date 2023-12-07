@@ -5,8 +5,13 @@ import {
   Injector,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TuiInputModule, TuiIslandModule } from '@taiga-ui/kit';
 import {
+  TuiInputModule,
+  TuiInputNumberModule,
+  TuiIslandModule,
+} from '@taiga-ui/kit';
+import {
+  TuiAlertService,
   TuiButtonModule,
   TuiDialogService,
   TuiGroupModule,
@@ -24,7 +29,7 @@ import { AppStore } from '../../app-store/store/app.store';
 import { TuiDestroyService, TuiLetModule } from '@taiga-ui/cdk';
 import { PolymorpheusComponent } from '@tinkoff/ng-polymorpheus';
 import { DetailsComponent } from '../details/details.component';
-import { takeUntil } from 'rxjs';
+import { catchError, EMPTY, takeUntil } from 'rxjs';
 import { PrimaryActionsService } from '../primary-actions/primary-actions.service';
 
 type MoveStudentsForm = {
@@ -46,6 +51,7 @@ type MoveStudentsForm = {
     ReactiveFormsModule,
     TuiLetModule,
     TuiTextfieldControllerModule,
+    TuiInputNumberModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './secondary-actions.component.html',
@@ -65,7 +71,8 @@ export class SecondaryActionsComponent {
     @Inject(TuiDestroyService)
     private readonly destroy$: TuiDestroyService,
     @Inject(TuiDialogService) private readonly dialogService: TuiDialogService,
-    @Inject(Injector) private readonly injector: Injector
+    @Inject(Injector) private readonly injector: Injector,
+    @Inject(TuiAlertService) private readonly alertService: TuiAlertService
   ) {}
 
   onMoveButtonClick() {
@@ -76,7 +83,19 @@ export class SecondaryActionsComponent {
       formValue.from !== null &&
       formValue.to !== null
     ) {
-      this.store.moveStudents(formValue.from, formValue.to).subscribe();
+      this.store
+        .moveStudents(formValue.from, formValue.to)
+        .pipe(
+          catchError(() => {
+            console.log('here');
+            this.alertService
+              .open('Invalid group ids', { status: 'error' })
+              .subscribe();
+
+            return EMPTY;
+          })
+        )
+        .subscribe();
     }
   }
 

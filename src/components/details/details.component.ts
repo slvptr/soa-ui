@@ -1,11 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  OnInit,
-} from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  TuiAlertService,
   TuiButtonModule,
   TuiDialogContext,
   TuiErrorModule,
@@ -19,6 +15,7 @@ import {
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import {
   TuiDataListWrapperModule,
@@ -36,7 +33,7 @@ import { AppStore } from '../../app-store/store/app.store';
 export type StudyGroupDetailsForm = {
   general: FormGroup<{
     id: FormControl<number>;
-    name: FormControl<string>;
+    groupName: FormControl<string>;
     coordinateX: FormControl<number>;
     coordinateY: FormControl<number>;
     studentsCount: FormControl<number>;
@@ -46,13 +43,25 @@ export type StudyGroupDetailsForm = {
     creationDate: FormControl<TuiDay>;
   }>;
   groupAdmin: FormGroup<{
-    name: FormControl<string>;
+    adminName: FormControl<string>;
     height: FormControl<number>;
     weight: FormControl<number>;
     passportID: FormControl<string>;
     birthday: FormControl<TuiDay>;
   }>;
 };
+
+const formControlErrorMessages = {
+  groupName: 'Name must be at least 2 characters long',
+  coordinates: 'Coordinates must be not null',
+  studentsCount: 'StudentsCount must be greater than or equal to 0',
+  transferredStudents: 'TransferredStudents must be greater than or equal to 0',
+  averageMark: 'AverageMark must be greater than or equal to 0',
+  adminName: 'Name must be at least 2 characters long',
+  height: 'Height must be greater than or equal to 0',
+  weight: 'Weight must be greater than or equal to 0',
+  passportID: 'PassportID must be have length of 10',
+} as const;
 
 export type DetailsContextInput = {
   studyGroup: StudyGroup;
@@ -81,7 +90,7 @@ export type DetailsContextInput = {
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.less'],
 })
-export class DetailsComponent {
+export class DetailsComponent implements OnInit {
   semestersList = Object.values(Semester).filter(item => isNaN(item as any));
 
   readonly id = this.context.data.studyGroup.id;
@@ -91,10 +100,21 @@ export class DetailsComponent {
   readonly creationDate = new Date(this.studyGroupData.creationDate);
   readonly birthdayDate = new Date(this.studyGroupData.groupAdmin.birthday);
 
-  isFormChanged = true;
   showUpdateLoader = false;
   showDeleteLoader = false;
   showAddLoader = false;
+
+  errorMessages = {
+    groupName: null,
+    coordinates: null,
+    studentsCount: null,
+    transferredStudents: null,
+    averageMark: null,
+    adminName: null,
+    height: null,
+    weight: null,
+    passportID: null,
+  };
 
   constructor(
     private readonly detailsService: DetailsService,
@@ -102,28 +122,41 @@ export class DetailsComponent {
     @Inject(POLYMORPHEUS_CONTEXT)
     private readonly context: TuiDialogContext<StudyGroup, DetailsContextInput>,
     @Inject(TuiDestroyService)
-    private readonly destroy$: TuiDestroyService
+    private readonly destroy$: TuiDestroyService,
+    @Inject(TuiAlertService) private readonly alertService: TuiAlertService
   ) {}
 
   detailsForm = new FormGroup<StudyGroupDetailsForm>({
     general: new FormGroup({
-      id: new FormControl(this.studyGroupData.id, { nonNullable: true }),
-      name: new FormControl(this.studyGroupData.name, { nonNullable: true }),
+      id: new FormControl(this.studyGroupData.id, {
+        nonNullable: true,
+      }),
+      groupName: new FormControl(this.studyGroupData.name, {
+        nonNullable: true,
+        validators: [Validators.required, Validators.minLength(2)],
+      }),
       coordinateX: new FormControl(this.studyGroupData.coordinates.x, {
         nonNullable: true,
+        validators: [Validators.required],
       }),
       coordinateY: new FormControl(this.studyGroupData.coordinates.y, {
         nonNullable: true,
+        validators: [Validators.required],
       }),
       studentsCount: new FormControl(this.studyGroupData.studentsCount, {
         nonNullable: true,
+        validators: [Validators.required, Validators.min(0)],
       }),
       transferredStudents: new FormControl(
         this.studyGroupData.transferredStudents,
-        { nonNullable: true }
+        {
+          nonNullable: true,
+          validators: [Validators.required, Validators.min(0)],
+        }
       ),
       averageMark: new FormControl(this.studyGroupData.averageMark, {
         nonNullable: true,
+        validators: [Validators.required, Validators.min(0)],
       }),
       semester: new FormControl(this.studyGroupData.semesterEnum, {
         nonNullable: true,
@@ -138,17 +171,25 @@ export class DetailsComponent {
       ),
     }),
     groupAdmin: new FormGroup({
-      name: new FormControl(this.studyGroupData.groupAdmin.name, {
+      adminName: new FormControl(this.studyGroupData.groupAdmin.name, {
         nonNullable: true,
+        validators: [Validators.required, Validators.minLength(2)],
       }),
       height: new FormControl(this.studyGroupData.groupAdmin.height, {
         nonNullable: true,
+        validators: [Validators.required, Validators.min(0)],
       }),
       weight: new FormControl(this.studyGroupData.groupAdmin.weight, {
         nonNullable: true,
+        validators: [Validators.required, Validators.min(0)],
       }),
       passportID: new FormControl(this.studyGroupData.groupAdmin.passportID, {
         nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.minLength(10),
+          Validators.maxLength(10),
+        ],
       }),
       birthday: new FormControl(
         new TuiDay(
@@ -161,6 +202,39 @@ export class DetailsComponent {
     }),
   });
 
+  ngOnInit() {
+    const generalFormGroup = this.detailsForm.controls.general;
+    const adminFormGroup = this.detailsForm.controls.groupAdmin;
+
+    const generalControls = Object.keys(generalFormGroup.controls);
+    const adminControls = Object.keys(adminFormGroup.controls);
+
+    generalControls.forEach(key => {
+      const control = generalFormGroup.get(key);
+      control?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        if (['coordinateX', 'coordinateY'].includes(key)) {
+          key = 'coordinates';
+        }
+        control?.valid
+          ? ((this.errorMessages as any)[key] = null)
+          : ((this.errorMessages as any)[key] = (
+              formControlErrorMessages as any
+            )[key]);
+      });
+    });
+
+    adminControls.forEach(key => {
+      const control = adminFormGroup.get(key);
+      control?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        control?.valid
+          ? ((this.errorMessages as any)[key] = null)
+          : ((this.errorMessages as any)[key] = (
+              formControlErrorMessages as any
+            )[key]);
+      });
+    });
+  }
+
   onUpdate() {
     const studyGroup: StudyGroup = this.detailsService.mapFormToModel(
       this.detailsForm.controls
@@ -172,6 +246,13 @@ export class DetailsComponent {
       .updateStudyGroup(studyGroup)
       .pipe(
         finalize(() => (this.showUpdateLoader = false)),
+        catchError(response => {
+          this.alertService
+            .open(response.error.detail, { status: 'error' })
+            .subscribe();
+
+          return EMPTY;
+        }),
         takeUntil(this.destroy$)
       )
       .subscribe(updatedStudyGroup =>
@@ -186,6 +267,13 @@ export class DetailsComponent {
       .deleteStudyGroup(this.studyGroupData.id)
       .pipe(
         finalize(() => (this.showDeleteLoader = false)),
+        catchError(response => {
+          this.alertService
+            .open(response.error.detail, { status: 'error' })
+            .subscribe();
+
+          return EMPTY;
+        }),
         takeUntil(this.destroy$)
       )
       .subscribe(deletedStudyGroup =>
@@ -194,6 +282,10 @@ export class DetailsComponent {
   }
 
   onAdd() {
+    if (!this.detailsForm.valid) {
+      return;
+    }
+
     const studyGroup: StudyGroup = this.detailsService.mapFormToModel(
       this.detailsForm.controls
     );
@@ -204,6 +296,13 @@ export class DetailsComponent {
       .addStudyGroup(studyGroup)
       .pipe(
         finalize(() => (this.showAddLoader = false)),
+        catchError(response => {
+          this.alertService
+            .open(response.error.detail, { status: 'error' })
+            .subscribe();
+
+          return EMPTY;
+        }),
         takeUntil(this.destroy$)
       )
       .subscribe(addedStudyGroup =>

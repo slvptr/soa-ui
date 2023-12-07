@@ -20,7 +20,7 @@
 
     <ng-container *tuiLet="pagination$ | async as pagination">
       <tui-pagination
-        *ngIf="pagination?.length !== 1"
+        *ngIf="pagination?.length !== 1 && pagination?.length !== 0"
         [index]="pagination?.index ?? 0"
         [length]="pagination?.length ?? 0"
         (indexChange)="navigateToPage($event)"

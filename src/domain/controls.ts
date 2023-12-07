@@ -1,6 +1,7 @@
 export interface Pagination {
   index: number;
   length: number;
+  totalCount: number;
 }
 
 export interface Filters {
@@ -16,7 +17,21 @@ export interface Filters {
   creationDate?: string;
 }
 
-export interface Actions {
+export interface PrimaryActions {
+  delete: {
+    value?: number;
+    isLoading: boolean;
+  };
+  getGroupWithSmallestCoordinate: {
+    isLoading: boolean;
+  };
+  getGroupsWithTransferredLess: {
+    value?: number;
+    isLoading: boolean;
+  };
+}
+
+export interface SecondaryActions {
   move: {
     from?: string;
     to?: string;

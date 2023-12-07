@@ -1,39 +1,22 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, switchMap, timer } from 'rxjs';
-import { Coordinates, Person, Semester } from '../../domain/study-group';
-import {
-  countExpelledResponseMock,
-  moveStudentsResponseMock,
-} from './actions.mock';
+import { Observable } from 'rxjs';
 
-export interface MoveStudentsApiResponse {
-  readonly id: number;
-  readonly name: string;
-  readonly coordinates: Coordinates;
-  readonly creationDate: string;
-  readonly studentsCount: number;
-  readonly transferredStudents: number;
-  readonly averageMark: number;
-  readonly semesterEnum: Semester;
-  readonly groupAdmin: Person;
-}
+import { HttpClient } from '@angular/common/http';
 
-export interface CountExpelledApiResponse {
-  readonly numberOfExpelledStudents: number;
-}
+const API_BASE_URL = 'https://localhost:8443/lab2soa2-0.0.1-SNAPSHOT/api/v1';
 
 @Injectable({ providedIn: 'root' })
 export class ActionsService {
-  moveStudents(
-    fromGroup: string,
-    toGroup: string
-  ): Observable<MoveStudentsApiResponse> {
-    console.log(`actions.service [move]: ${fromGroup} ${toGroup}`);
-    return timer(3000).pipe(switchMap(() => of(moveStudentsResponseMock)));
+  constructor(private readonly http: HttpClient) {}
+
+  moveStudents(fromGroup: string, toGroup: string): Observable<string> {
+    return this.http.post<string>(
+      `${API_BASE_URL}/${fromGroup}/move/${toGroup}`,
+      {}
+    );
   }
 
-  countExpelled(): Observable<CountExpelledApiResponse> {
-    console.log(`actions.service [count]`);
-    return timer(1000).pipe(switchMap(() => of(countExpelledResponseMock)));
+  countTransferred(): Observable<number> {
+    return this.http.post<number>(`${API_BASE_URL}/count-transferred`, {});
   }
 }

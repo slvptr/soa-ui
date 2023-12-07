@@ -12,7 +12,7 @@ export class DetailsService {
 
     return {
       id: general.id,
-      name: general.name,
+      name: general.groupName,
       coordinates: {
         x: general.coordinateX,
         y: general.coordinateY,
@@ -23,7 +23,7 @@ export class DetailsService {
       studentsCount: general.studentsCount,
       transferredStudents: general.transferredStudents,
       groupAdmin: {
-        name: groupAdmin.name,
+        name: groupAdmin.adminName,
         height: groupAdmin.height,
         weight: groupAdmin.weight,
         passportID: groupAdmin.passportID,

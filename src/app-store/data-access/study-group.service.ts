@@ -45,7 +45,7 @@ const getGroupViewParams = ({
   groupAdmin,
 });
 
-const API_BASE_URL = 'http://localhost:8080/api/v1/groups';
+const API_BASE_URL = 'https://localhost:8080/api/v1/groups';
 
 @Injectable({ providedIn: 'root' })
 export class StudyGroupService {
@@ -93,6 +93,29 @@ export class StudyGroupService {
     return this.http.post<StudyGroup>(
       `${API_BASE_URL}`,
       getGroupViewParams(studyGroup)
+    );
+  }
+
+  deleteAllByAverageMark(averageMark: number): Observable<number> {
+    return this.http.post<number>(
+      `${API_BASE_URL}/delete-all-by-average-mark/${averageMark}`,
+      {}
+    );
+  }
+
+  getGroupsWithTransferredStudentsLessThan(
+    transferredStudents: number
+  ): Observable<StudyGroup[]> {
+    return this.http.post<StudyGroup[]>(
+      `${API_BASE_URL}/transferred-students-less-than/${transferredStudents}`,
+      {}
+    );
+  }
+
+  getGroupWithSmallestCoordinate(): Observable<StudyGroup> {
+    return this.http.post<StudyGroup>(
+      `${API_BASE_URL}/smallest-coordinates`,
+      {}
     );
   }
 }

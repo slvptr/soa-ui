@@ -11,10 +11,10 @@ import { TuiDestroyService, TuiLetModule } from '@taiga-ui/cdk';
 import { TuiPaginationModule } from '@taiga-ui/kit';
 import { GroupListSkeletonComponent } from '../group-list-skeleton/group-list-skeleton.component';
 import { StudyGroup } from '../../domain/study-group';
-import { TuiDialogService } from '@taiga-ui/core';
+import { TuiAlertService, TuiDialogService } from '@taiga-ui/core';
 import { PolymorpheusComponent } from '@tinkoff/ng-polymorpheus';
 import { DetailsComponent } from '../details/details.component';
-import { takeUntil } from 'rxjs';
+import { catchError, EMPTY, takeUntil } from 'rxjs';
 import { SortBarComponent } from '../sort-bar/sort-bar.component';
 import { GroupListEmptyComponent } from '../group-list-empty/group-list-empty.component';
 
