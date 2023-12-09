@@ -45,7 +45,7 @@ const getGroupViewParams = ({
   groupAdmin,
 });
 
-const API_BASE_URL = 'https://localhost:8080/api/v1/groups';
+const API_BASE_URL = 'https://localhost:8762/defiant-server/api/v1/groups';
 
 @Injectable({ providedIn: 'root' })
 export class StudyGroupService {

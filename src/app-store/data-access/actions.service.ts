@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 
-const API_BASE_URL = 'https://localhost:8443/lab2soa2-0.0.1-SNAPSHOT/api/v1';
+const API_BASE_URL = 'http://localhost:8080/second-service-1.0-SNAPSHOT/api';
 
 @Injectable({ providedIn: 'root' })
 export class ActionsService {
